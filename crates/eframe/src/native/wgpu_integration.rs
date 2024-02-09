@@ -825,7 +825,12 @@ impl Viewport {
 
         let viewport_id = self.ids.this;
 
-        match egui_winit::create_window(egui_ctx, event_loop, &self.builder) {
+        match egui_winit::create_window(
+            egui_ctx,
+            event_loop,
+            &self.builder,
+            winit::window::WindowBuilder::new(),
+        ) {
             Ok(window) => {
                 windows_id.insert(window.id(), viewport_id);
 
@@ -874,7 +879,13 @@ fn create_window(
     )
     .with_visible(false); // Start hidden until we render the first frame to fix white flash on startup (https://github.com/emilk/egui/pull/3631)
 
-    let window = egui_winit::create_window(egui_ctx, event_loop, &viewport_builder)?;
+    let mut window_builder = winit::window::WindowBuilder::new();
+    if let Some(hook) = native_options.clone().window_builder {
+        window_builder = hook(window_builder);
+    }
+
+    let window =
+        egui_winit::create_window(egui_ctx, event_loop, &viewport_builder, window_builder)?;
     epi_integration::apply_window_settings(&window, window_settings);
     Ok((window, viewport_builder))
 }

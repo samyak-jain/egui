@@ -1464,11 +1464,16 @@ pub fn create_window<T>(
     egui_ctx: &egui::Context,
     event_loop: &EventLoopWindowTarget<T>,
     viewport_builder: &ViewportBuilder,
+    window_builder: winit::window::WindowBuilder,
 ) -> Result<Window, winit::error::OsError> {
     crate::profile_function!();
 
-    let window_builder =
-        create_winit_window_builder(egui_ctx, event_loop, viewport_builder.clone());
+    let window_builder = create_winit_window_builder(
+        egui_ctx,
+        event_loop,
+        viewport_builder.clone(),
+        window_builder,
+    );
     let window = {
         crate::profile_scope!("WindowBuilder::build");
         window_builder.build(event_loop)?
@@ -1481,6 +1486,7 @@ pub fn create_winit_window_builder<T>(
     egui_ctx: &egui::Context,
     event_loop: &EventLoopWindowTarget<T>,
     viewport_builder: ViewportBuilder,
+    provided_window_builder: winit::window::WindowBuilder,
 ) -> winit::window::WindowBuilder {
     crate::profile_function!();
 
@@ -1536,7 +1542,7 @@ pub fn create_winit_window_builder<T>(
         mouse_passthrough: _, // handled in `apply_viewport_builder_to_window`
     } = viewport_builder;
 
-    let mut window_builder = winit::window::WindowBuilder::new()
+    let mut window_builder = provided_window_builder
         .with_title(title.unwrap_or_else(|| "egui window".to_owned()))
         .with_transparent(transparent.unwrap_or(false))
         .with_decorations(decorations.unwrap_or(true))

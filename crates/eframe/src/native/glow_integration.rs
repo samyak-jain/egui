@@ -866,6 +866,11 @@ impl GlutinWindowContext {
 
         log::debug!("trying to create glutin Display with config: {config_template_builder:?}");
 
+        let mut window_builder = winit::window::WindowBuilder::new();
+        if let Some(hook) = native_options.clone().window_builder {
+            window_builder = hook(window_builder);
+        }
+
         // Create GL display. This may probably create a window too on most platforms. Definitely on `MS windows`. Never on Android.
         let display_builder = glutin_winit::DisplayBuilder::new()
             // we might want to expose this option to users in the future. maybe using an env var or using native_options.
@@ -874,6 +879,7 @@ impl GlutinWindowContext {
                 egui_ctx,
                 event_loop,
                 viewport_builder.clone(),
+                window_builder,
             )));
 
         let (window, gl_config) = {
@@ -1027,6 +1033,7 @@ impl GlutinWindowContext {
                 &self.egui_ctx,
                 event_loop,
                 viewport.builder.clone(),
+                winit::window::WindowBuilder::new(),
             );
             if window_builder.transparent() && self.gl_config.supports_transparency() == Some(false)
             {

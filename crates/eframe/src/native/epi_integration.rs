@@ -62,10 +62,11 @@ pub fn viewport_builder<E>(
         }
     }
 
-    match std::mem::take(&mut native_options.window_builder) {
-        Some(hook) => hook(viewport_builder),
-        None => viewport_builder,
-    }
+    viewport_builder
+    // match std::mem::take(&mut native_options.window_builder) {
+    //     Some(hook) => hook(viewport_builder),
+    //     None => viewport_builder,
+    // }
 }
 
 pub fn apply_window_settings(
